@@ -1,12 +1,15 @@
 import { useState, useContext } from "react";
+import { View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LoginScreen, UserContext } from "./LoginScreen";
 import { HomeScreen } from "./HomeScreen";
+import FlashMessage from "react-native-flash-message";
 
 const navigator = createNativeStackNavigator();
+const homeNavigator = createBottomTabNavigator();
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -19,18 +22,35 @@ function App() {
   );
 }
 
-export const MainNavigator = () => {
+function MainApp() {
+  // This tab navigator contains all of the features of the project, except for login.
+  return (
+    <homeNavigator.Navigator>
+      <navigator.Screen name="Home" component={HomeScreen} />
+    </homeNavigator.Navigator>
+  );
+}
+
+function MainNavigator() {
+  // The main navigator chooses between the login screen and the tab navigator.
   const { authenticated } = useContext(UserContext);
-  console.log(authenticated);
   return (
     <navigator.Navigator>
-      {authenticated ? (
-        <navigator.Screen name="Home" component={HomeScreen} />
+      {authenticated ? ( // When the user has authenticated, they get access to the main app.
+        <navigator.Screen
+          name="Main App"
+          component={MainApp}
+          options={{ headerShown: false }}
+        />
       ) : (
-        <navigator.Screen name="Login" component={LoginScreen} />
+        <navigator.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
       )}
     </navigator.Navigator>
   );
-};
+}
 
 export default App;
