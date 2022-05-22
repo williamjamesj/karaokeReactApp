@@ -8,6 +8,7 @@ import { LoginScreen, UserContext } from "./LoginScreen";
 import { HomeScreen } from "./HomeScreen";
 import { Settings } from "react-native-web";
 import { SettingsScreen } from "./SettingsScreen";
+import { TwoFactorScreen } from "./TwoFactorScreen";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
@@ -42,11 +43,17 @@ function MainNavigator() {
   const { authenticated } = useContext(UserContext);
   return (
     <navigator.Navigator>
-      {authenticated ? ( // When the user has authenticated, they get access to the main app.
+      {authenticated == true ? ( // When the user has authenticated, they get access to the main app.
         <navigator.Screen
           name="Main App"
           component={MainApp}
           options={{ headerShown: false }}
+        />
+      ) : authenticated == "2fa" ? (
+        <navigator.Screen
+          name="Two Factor Authentication"
+          component={TwoFactorScreen}
+          options={{ headerShown: true }}
         />
       ) : (
         <navigator.Screen

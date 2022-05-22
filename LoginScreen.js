@@ -1,11 +1,10 @@
 import {
   Text,
   TextInput,
-  SafeAreaView,
+  KeyboardAvoidingView,
   Button,
   StyleSheet,
-  ActivityIndicator,
-  Modal,
+  View,
 } from "react-native";
 import { createContext, useContext, useState, useRef } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -30,12 +29,18 @@ export function LoginScreen() {
   let credentials = { email: "", password: "" };
   let passwordField = useRef(); // Allows the password field to be focused once the email field is completed.
   return (
-    <SafeAreaView style={[stylesGlobal.background, styles.loginViewLayout]}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[stylesGlobal.background, styles.loginViewLayout]}
+    >
       <LoadingIndicator active={loading} />
       {/* The loading indicator displays whilst waiting for a response from the server. */}
       <FlashMessage position="top" floating={true} />
       {/* The flash message informs the user when they have to take action (e.g. invalid credentials). */}
-      <Text style={stylesGlobal.text}>Email:</Text>
+      <View>
+        {/* Not sure why, but the labels have to be wrapped in a view, otherwise they don't move properly with the KeyboardAvoidingView animation. */}
+        <Text style={stylesGlobal.text}>Email:</Text>
+      </View>
       <TextInput
         style={styles.loginInput}
         textContentType={"emailAddress"}
@@ -47,7 +52,9 @@ export function LoginScreen() {
         autoCorrect={false}
         returnKeyType="next"
       />
-      <Text style={stylesGlobal.text}>Password:</Text>
+      <View>
+        <Text style={stylesGlobal.text}>Password:</Text>
+      </View>
       <TextInput
         style={styles.loginInput}
         textContentType={"password"}
@@ -68,7 +75,7 @@ export function LoginScreen() {
           callSubmit(credentials, setAuthenticated);
         }}
       />
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -93,7 +100,7 @@ function submit(credentials, setAuthenticated, setLoading) {
     },
     body: JSON.stringify(credentials),
   })
-    .then((repsonse) => repsonse.json())
+    .then((response) => response.json())
     .then((json) => {
       handleResponse(json, setAuthenticated, setLoading);
     })
@@ -106,6 +113,9 @@ function handleResponse(response, setAuthenticated, setLoading) {
   if (response["status"] == "authenticated") {
     setLoading(false);
     setAuthenticated(true);
+  } else if (response["status"] == "2fa") {
+    setLoading(false);
+    setAuthenticated("2fa");
   } else {
     showMessage({
       message: "Incorrect email or password.",
@@ -120,14 +130,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  loginLabel: {
-    fontSize: 20,
-  },
   loginInput: {
     height: 40,
-    width: "50%",
+    width: "75%",
     margin: 20,
-    borderWidth: 2,
-    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
   },
 });
