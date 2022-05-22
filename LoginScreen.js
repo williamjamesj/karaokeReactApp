@@ -7,10 +7,11 @@ import {
   ActivityIndicator,
   Modal,
 } from "react-native";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useRef } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { LoadingIndicator } from "./LoadingAnimation";
+import { stylesGlobal } from "./Styles";
 
 export const UserContext = createContext({
   // The user context stores all of the relevant user data.
@@ -27,21 +28,26 @@ export function LoginScreen() {
   const { setAuthenticated } = useContext(UserContext); // The setAuthenticated object will navigate the user to the next screen if it is set to true.
   const [loading, setLoading] = useState(false); // This state is set while the app is waiting for a response from the server, and controls the loading indicator.
   let credentials = { email: "", password: "" };
+  let passwordField = useRef(); // Allows the password field to be focused once the email field is completed.
   return (
-    <SafeAreaView style={styles.loginViewLayout}>
+    <SafeAreaView style={[stylesGlobal.background, styles.loginViewLayout]}>
       <LoadingIndicator active={loading} />
+      {/* The loading indicator displays whilst waiting for a response from the server. */}
       <FlashMessage position="top" floating={true} />
-      <Text style={styles.loginLabel}>Email:</Text>
+      {/* The flash message informs the user when they have to take action (e.g. invalid credentials). */}
+      <Text style={stylesGlobal.text}>Email:</Text>
       <TextInput
         style={styles.loginInput}
         textContentType={"emailAddress"}
         onChangeText={(text) => (credentials["email"] = text)}
         autoComplete={"email"}
         autoCapitalize="none"
+        onSubmitEditing={() => passwordField.current.focus()} // Once the user presses next on their keyboard, focus the password field.
         keyboardType="email-address"
         autoCorrect={false}
+        returnKeyType="next"
       />
-      <Text style={styles.loginLabel}>Password:</Text>
+      <Text style={stylesGlobal.text}>Password:</Text>
       <TextInput
         style={styles.loginInput}
         textContentType={"password"}
@@ -54,6 +60,7 @@ export function LoginScreen() {
         }
         returnKeyType="done"
         blurOnSubmit={true}
+        ref={passwordField}
       />
       <Button
         title="Submit"

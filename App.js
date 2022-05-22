@@ -6,7 +6,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LoginScreen, UserContext } from "./LoginScreen";
 import { HomeScreen } from "./HomeScreen";
-import FlashMessage from "react-native-flash-message";
+import { Settings } from "react-native-web";
+import { SettingsScreen } from "./SettingsScreen";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
@@ -26,7 +27,12 @@ function MainApp() {
   // This tab navigator contains all of the features of the project, except for login.
   return (
     <homeNavigator.Navigator>
-      <navigator.Screen name="Home" component={HomeScreen} />
+      <navigator.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <navigator.Screen name="Settings" component={SettingsScreen} />
     </homeNavigator.Navigator>
   );
 }
