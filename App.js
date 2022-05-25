@@ -4,11 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { LoginScreen, UserContext } from "./LoginScreen";
-import { HomeScreen } from "./HomeScreen";
-import { Settings } from "react-native-web";
-import { SettingsScreen } from "./SettingsScreen";
-import { TwoFactorScreen } from "./TwoFactorScreen";
+import { LoginScreen, UserContext } from "./screens/LoginScreen";
+import { HomeScreen } from "./screens/HomeScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
+import { TwoFactorScreen } from "./screens/TwoFactorScreen";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();

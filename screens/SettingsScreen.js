@@ -1,5 +1,5 @@
 import { View, Button } from "react-native";
-import { stylesGlobal } from "./Styles";
+import { stylesGlobal } from "../Styles";
 
 export function SettingsScreen() {
   return (

@@ -4,9 +4,10 @@ import {
   TextInput,
   StyleSheet,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useContext, useState } from "react";
-import { stylesGlobal } from "./Styles";
+import { stylesGlobal } from "../Styles";
 import { LoadingIndicator } from "./LoadingAnimation";
 import { UserContext } from "./LoginScreen";
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -50,7 +51,7 @@ function submitToken(token, setAuthenticated, setLoading) {
     });
   } else {
     setLoading(true);
-    fetch("http://192.168.0.172:5000/2fa", {
+    fetch("http://10.10.73.40:5000/2fa", {
       method: "POST",
       headers: {
         Accept: "application/json",

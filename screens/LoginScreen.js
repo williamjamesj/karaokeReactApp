@@ -5,12 +5,13 @@ import {
   Button,
   StyleSheet,
   View,
+  Platform,
 } from "react-native";
 import { createContext, useContext, useState, useRef } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { LoadingIndicator } from "./LoadingAnimation";
-import { stylesGlobal } from "./Styles";
+import { stylesGlobal } from "../Styles";
 
 export const UserContext = createContext({
   // The user context stores all of the relevant user data.
@@ -92,7 +93,7 @@ function callSubmit(credentials, setAuthenticated, setLoading) {
 }
 
 function submit(credentials, setAuthenticated, setLoading) {
-  fetch("http://192.168.0.172:5000/login", {
+  fetch("http://10.10.73.40:5000/login", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -110,6 +111,7 @@ function submit(credentials, setAuthenticated, setLoading) {
 }
 
 function handleResponse(response, setAuthenticated, setLoading) {
+  console.log(response);
   if (response["status"] == "authenticated") {
     setLoading(false);
     setAuthenticated(true);
@@ -117,6 +119,7 @@ function handleResponse(response, setAuthenticated, setLoading) {
     setLoading(false);
     setAuthenticated("2fa");
   } else {
+    setLoading(false);
     showMessage({
       message: "Incorrect email or password.",
       type: "warning",
