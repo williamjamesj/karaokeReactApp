@@ -7,17 +7,21 @@ import {
   View,
   Platform,
 } from "react-native";
-import { createContext, useContext, useState, useRef } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { LoadingIndicator } from "./LoadingAnimation";
 import { stylesGlobal } from "../Styles";
+import { setItemAsync, getItemAsync } from "expo-secure-store";
+import { setToken, getToken, wipeKey } from "./Storage";
 
 export const UserContext = createContext({
   // The user context stores all of the relevant user data.
   authenticated: false,
   setAuthenticated: () => {},
 });
+
+export const ENDPOINT_URL = "http://192.168.0.173:5000";
 
 // export const UserData = createContext({ // I don't think I'm going to need to save UserData like this.
 //   data: {},
@@ -27,6 +31,18 @@ export const UserContext = createContext({
 export function LoginScreen() {
   const { setAuthenticated } = useContext(UserContext); // The setAuthenticated object will navigate the user to the next screen if it is set to true.
   const [loading, setLoading] = useState(false); // This state is set while the app is waiting for a response from the server, and controls the loading indicator.
+  const [token, setToken] = useState(null);
+  useEffect(() => {
+    // Retrieve the token from the secure storage.
+    async function retrieveToken() {
+      const token = await getItemAsync("token");
+      setToken(token);
+      if (token != null) {
+        tokenificate(token, setAuthenticated, setLoading);
+      }
+    }
+    retrieveToken();
+  }, []);
   let credentials = { email: "", password: "" };
   let passwordField = useRef(); // Allows the password field to be focused once the email field is completed.
   return (
@@ -73,7 +89,7 @@ export function LoginScreen() {
       <Button
         title="Submit"
         onPress={() => {
-          callSubmit(credentials, setAuthenticated);
+          callSubmit(credentials, setAuthenticated, setLoading);
         }}
       />
     </KeyboardAvoidingView>
@@ -93,7 +109,7 @@ function callSubmit(credentials, setAuthenticated, setLoading) {
 }
 
 function submit(credentials, setAuthenticated, setLoading) {
-  fetch("http://10.10.73.40:5000/login", {
+  fetch(ENDPOINT_URL + "/login", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -111,13 +127,18 @@ function submit(credentials, setAuthenticated, setLoading) {
 }
 
 function handleResponse(response, setAuthenticated, setLoading) {
-  console.log(response);
   if (response["status"] == "authenticated") {
     setLoading(false);
     setAuthenticated(true);
+    if ("token" in response) {
+      setToken(response["token"]);
+    }
   } else if (response["status"] == "2fa") {
     setLoading(false);
     setAuthenticated("2fa");
+  } else if (response["status"] == "Invalid Token") {
+    setLoading(false);
+    wipeKey(); // If you don't succeed at first, give up and wipe the key so you can never succeed again.
   } else {
     setLoading(false);
     showMessage({
@@ -125,6 +146,26 @@ function handleResponse(response, setAuthenticated, setLoading) {
       type: "warning",
     });
   }
+}
+
+function tokenificate(token, setAuthenticated, setLoading) {
+  // Authenticate using the token.
+  setLoading(true);
+  fetch(ENDPOINT_URL + "/token_login", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token: token }),
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      handleResponse(json, setAuthenticated, setLoading);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }
 
 const styles = StyleSheet.create({

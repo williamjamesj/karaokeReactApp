@@ -12,6 +12,8 @@ import { LoadingIndicator } from "./LoadingAnimation";
 import { UserContext } from "./LoginScreen";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
+import { ENDPOINT_URL } from "./LoginScreen";
+import { setToken, getToken } from "./Storage";
 
 export function TwoFactorScreen() {
   const { authenticated, setAuthenticated } = useContext(UserContext);
@@ -51,7 +53,7 @@ function submitToken(token, setAuthenticated, setLoading) {
     });
   } else {
     setLoading(true);
-    fetch("http://10.10.73.40:5000/2fa", {
+    fetch(ENDPOINT_URL + "/2fa", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -73,6 +75,8 @@ function handleResponse(response, setAuthenticated, setLoading) {
   setLoading(false);
   if (response["status"] == "authenticated") {
     setAuthenticated(true);
+    token = response["token"];
+    setToken(token);
   } else if (response["status"] == "Invalid Code") {
     showMessage({
       message: "Invalid code",
