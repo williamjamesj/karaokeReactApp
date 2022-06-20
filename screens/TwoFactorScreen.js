@@ -66,7 +66,12 @@ function submitToken(token, setAuthenticated, setLoading) {
         handleResponse(json, setAuthenticated, setLoading);
       })
       .catch((error) => {
-        console.log(error);
+        setLoading(false);
+        showMessage({
+          message:
+            "Error connecting to server. Please check your internet connection.",
+          type: "danger",
+        });
       });
   }
 }

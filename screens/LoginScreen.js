@@ -7,7 +7,7 @@ import {
   View,
   Platform,
 } from "react-native";
-import { createContext, useContext, useState, useRef, useEffect } from "react";
+import { useState, createContext, useContext, useRef, useEffect } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { LoadingIndicator } from "./LoadingAnimation";
@@ -21,7 +21,7 @@ export const UserContext = createContext({
   setAuthenticated: () => {},
 });
 
-export const ENDPOINT_URL = "http://192.168.0.173:5000";
+export const ENDPOINT_URL = "http://10.10.72.253:5000";
 
 // export const UserData = createContext({ // I don't think I'm going to need to save UserData like this.
 //   data: {},
@@ -44,6 +44,7 @@ export function LoginScreen() {
     retrieveToken();
   }, []);
   let credentials = { email: "", password: "" };
+  let emailField = useRef();
   let passwordField = useRef(); // Allows the password field to be focused once the email field is completed.
   return (
     <KeyboardAvoidingView
@@ -68,6 +69,7 @@ export function LoginScreen() {
         keyboardType="email-address"
         autoCorrect={false}
         returnKeyType="next"
+        ref={emailField}
       />
       <View>
         <Text style={stylesGlobal.text}>Password:</Text>
@@ -122,11 +124,17 @@ function submit(credentials, setAuthenticated, setLoading) {
       handleResponse(json, setAuthenticated, setLoading);
     })
     .catch((error) => {
-      console.log(error);
+      setLoading(false);
+      showMessage({
+        message:
+          "Error connecting to server. Please check your internet connection.",
+        type: "danger",
+      });
     });
 }
 
 function handleResponse(response, setAuthenticated, setLoading) {
+  // Handles the response from the flask server, which contains a status message, and potentially a user token if authentication was successful.
   if (response["status"] == "authenticated") {
     setLoading(false);
     setAuthenticated(true);

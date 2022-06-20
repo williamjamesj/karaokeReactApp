@@ -8,6 +8,7 @@ import { LoginScreen, UserContext } from "./screens/LoginScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { TwoFactorScreen } from "./screens/TwoFactorScreen";
+import { SongFinderScreen } from "./screens/SongFinderScreen";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
@@ -26,12 +27,32 @@ function App() {
 function MainApp() {
   // This tab navigator contains all of the features of the project, except for login.
   return (
-    <homeNavigator.Navigator>
+    <homeNavigator.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Song Finder") {
+            iconName = focused ? "musical-note" : "musical-note-sharp";
+          } else if (route.name === "Settings") {
+            iconName = focused ? "cog" : "cog-outline";
+          }
+
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: "tomato",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
       <navigator.Screen
         name="Home"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
+      <navigator.Screen name="Song Finder" component={SongFinderScreen} />
       <navigator.Screen name="Settings" component={SettingsScreen} />
     </homeNavigator.Navigator>
   );
