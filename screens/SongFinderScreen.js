@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SectionList,
   SafeAreaView,
+  Platform,
 } from "react-native";
 import { useState } from "react";
 import { ENDPOINT_URL } from "./LoginScreen";

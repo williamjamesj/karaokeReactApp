@@ -35,10 +35,12 @@ export function LoginScreen() {
   useEffect(() => {
     // Retrieve the token from the secure storage.
     async function retrieveToken() {
-      const token = await getItemAsync("token");
-      setToken(token);
-      if (token != null) {
-        tokenificate(token, setAuthenticated, setLoading);
+      if (Platform.OS !== "web") {
+        const token = await getItemAsync("token");
+        setToken(token);
+        if (token != null) {
+          tokenificate(token, setAuthenticated, setLoading);
+        }
       }
     }
     retrieveToken();
@@ -185,6 +187,7 @@ const styles = StyleSheet.create({
   loginInput: {
     height: 40,
     width: "75%",
+    maxWidth: "200",
     margin: 20,
     borderWidth: 1,
     borderRadius: 5,
