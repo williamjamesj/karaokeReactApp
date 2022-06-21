@@ -13,10 +13,10 @@ import { useState } from "react";
 import { ENDPOINT_URL } from "./LoginScreen";
 import { LoadingIndicator } from "./LoadingAnimation";
 import { stylesGlobal } from "../Styles";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { LyricsScreen, getLyrics } from "./LyricsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,13 +25,18 @@ export function SongFinderScreen() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Input"
+        name="Lyrics Input"
         component={InputScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Results"
         component={ResultsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Lyrics"
+        component={LyricsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -46,6 +51,7 @@ function InputScreen({ route, navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[stylesGlobal.background]}
     >
+      <FlashMessage position="top" floating={true} />
       <LoadingIndicator active={loading} />
       <TextInput
         style={(stylesGlobal.input, styles.lyricsInput)}
@@ -64,23 +70,62 @@ function InputScreen({ route, navigation }) {
   );
 }
 
+function Item({ artist, songName, navigation, setLoading }) {
+  return (
+    <View style={styles.songDetails}>
+      <Text>Artist: {artist}</Text>
+      <Button
+        title="View Lyrics"
+        onPress={() => {
+          navigation.navigate("Lyrics", {
+            songName: songName,
+            artist: artist,
+          });
+        }}
+      />
+    </View>
+  );
+}
+
 function ResultsScreen({ navigation, route }) {
+  const [loading, setLoading] = useState(false);
   if (route.params.data != "No Lyrics.") {
     let responsedata = route.params.data;
     let hits = responsedata.song.response.hits;
     let fullDict = [];
     for (let i = 0; i < hits.length; i++) {
       let hit = hits[i];
-      fullDict.push({ title: hit.full_title, data: [hit] });
+      console.log(hit.result.full_title);
+      fullDict.push({
+        title: hit.result.title,
+        data: [[hit.result.primary_artist.name, hit.result.title]],
+      });
     }
-    console.log(hits);
     return (
       <SafeAreaView>
+        <LoadingIndicator active={loading} />
         <SectionList
           sections={fullDict}
           keyExtractor={(item, index) => item + index}
-          renderItem={({ item }) => <Text title={item} />}
-          renderSectionHeader={({ section: { title } }) => <Text>{title}</Text>}
+          renderItem={({ item }) => (
+            <Item
+              artist={item[0]}
+              songName={item[1]}
+              navigation={navigation}
+              setLoading={setLoading}
+            />
+          )}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.songTitle}>{title}</Text>
+          )}
+          renderSectionFooter={() => (
+            <View
+              style={{
+                borderBottomColor: "black",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+              }}
+            />
+          )}
         ></SectionList>
       </SafeAreaView>
     );
@@ -115,9 +160,11 @@ function submitLyrics(lyrics, setLoading, navigation) {
 
 function handleResponse(data, setLoading, navigation) {
   setLoading(false);
-  // console.log(data);
-  if (data.status == "No Lyrics.") {
+  console.log(data.song.response.hits.length);
+  if (data.song.response.hits.length == 0) {
     console.log("No Lyrics recieved.");
+    showMessage({ message: "No Lyrics found.", type: "warning" });
+    return;
   }
   navigation.navigate("Results", { data: data });
 }
@@ -129,5 +176,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     backgroundColor: "#FBF9FF",
+  },
+  songDetails: {},
+  songTitle: {
+    fontSize: 20,
   },
 });

@@ -21,6 +21,8 @@ export async function setToken(token) {
 }
 
 export async function wipeKey() {
-  deleteItemAsync("token");
+  if (Platform.OS !== "web") {
+    deleteItemAsync("token");
+  }
   return;
 }

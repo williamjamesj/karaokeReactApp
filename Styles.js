@@ -22,6 +22,15 @@ const stylesGlobal = StyleSheet.create({
   button: {
     color: "#303136",
   },
+  title: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "black",
+  },
+  subtitle: {
+    fontSize: 20,
+    color: "grey",
+  },
 });
 
 export { stylesGlobal };

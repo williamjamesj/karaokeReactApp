@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   loginInput: {
     height: 40,
     width: "75%",
-    maxWidth: "200",
+    maxWidth: 300,
     margin: 20,
     borderWidth: 1,
     borderRadius: 5,
