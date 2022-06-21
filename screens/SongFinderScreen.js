@@ -16,7 +16,7 @@ import { stylesGlobal } from "../Styles";
 import { showMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { LyricsScreen, getLyrics } from "./LyricsScreen";
+import { DetailsScreen, getLyrics } from "./DetailsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,7 +36,7 @@ export function SongFinderScreen() {
       />
       <Stack.Screen
         name="Lyrics"
-        component={LyricsScreen}
+        component={DetailsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

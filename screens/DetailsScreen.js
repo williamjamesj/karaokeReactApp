@@ -18,7 +18,7 @@ import { showMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export function LyricsScreen({ route, navigation }) {
+export function DetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [lyrics, setLyrics] = useState("");
   useEffect(() => {
