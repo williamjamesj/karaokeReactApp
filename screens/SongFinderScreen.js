@@ -8,6 +8,8 @@ import {
   SectionList,
   SafeAreaView,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useState } from "react";
 import { ENDPOINT_URL } from "./LoginScreen";
@@ -27,17 +29,17 @@ export function SongFinderScreen() {
       <Stack.Screen
         name="Lyrics Input"
         component={InputScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
-        name="Results"
+        name="Songs"
         component={ResultsScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
-        name="Lyrics"
+        name="Song Details"
         component={DetailsScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
     </Stack.Navigator>
   );
@@ -47,39 +49,50 @@ function InputScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   let lyrics = "";
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[stylesGlobal.background]}
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
     >
-      <FlashMessage position="top" floating={true} />
-      <LoadingIndicator active={loading} />
-      <TextInput
-        style={(stylesGlobal.input, styles.lyricsInput)}
-        multiline={true}
-        onChangeText={(text) => (lyrics = text)}
-        autoCorrect={false}
-      />
-      <Button
-        title="Submit"
-        style={{ color: "#303136" }}
-        onPress={() => {
-          submitLyrics(lyrics, setLoading, navigation);
-        }}
-      />
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[stylesGlobal.background]}
+      >
+        <FlashMessage position="top" floating={true} />
+        <LoadingIndicator active={loading} />
+        <View>
+          <Text>Enter Lyrics:</Text>
+        </View>
+
+        <TextInput
+          style={(stylesGlobal.input, styles.lyricsInput)}
+          multiline={true}
+          onChangeText={(text) => (lyrics = text)}
+          autoCorrect={false}
+        />
+        <Button
+          title="Submit"
+          style={{ color: "#303136" }}
+          onPress={() => {
+            submitLyrics(lyrics, setLoading, navigation);
+          }}
+        />
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
-function Item({ artist, songName, navigation, setLoading }) {
+function Item({ artist, songName, navigation, imageURL, setLoading }) {
   return (
     <View style={styles.songDetails}>
       <Text>Artist: {artist}</Text>
       <Button
         title="View Lyrics"
         onPress={() => {
-          navigation.navigate("Lyrics", {
+          navigation.navigate("Song Details", {
             songName: songName,
             artist: artist,
+            imageURL: imageURL,
           });
         }}
       />
@@ -95,10 +108,15 @@ function ResultsScreen({ navigation, route }) {
     let fullDict = [];
     for (let i = 0; i < hits.length; i++) {
       let hit = hits[i];
-      console.log(hit.result.full_title);
       fullDict.push({
         title: hit.result.title,
-        data: [[hit.result.primary_artist.name, hit.result.title]],
+        data: [
+          [
+            hit.result.primary_artist.name,
+            hit.result.title,
+            hit.result.header_image_thumbnail_url,
+          ],
+        ],
       });
     }
     return (
@@ -111,6 +129,7 @@ function ResultsScreen({ navigation, route }) {
             <Item
               artist={item[0]}
               songName={item[1]}
+              imageURL={item[2]}
               navigation={navigation}
               setLoading={setLoading}
             />
@@ -160,13 +179,12 @@ function submitLyrics(lyrics, setLoading, navigation) {
 
 function handleResponse(data, setLoading, navigation) {
   setLoading(false);
-  console.log(data.song.response.hits.length);
   if (data.song.response.hits.length == 0) {
     console.log("No Lyrics recieved.");
     showMessage({ message: "No Lyrics found.", type: "warning" });
     return;
   }
-  navigation.navigate("Results", { data: data });
+  navigation.navigate("Songs", { data: data });
 }
 const styles = StyleSheet.create({
   lyricsInput: {

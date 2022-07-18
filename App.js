@@ -16,6 +16,7 @@ const homeNavigator = createBottomTabNavigator();
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   return (
+    // Establish the user context, and initialise the main navigator.
     <UserContext.Provider value={{ authenticated, setAuthenticated }}>
       <NavigationContainer>
         <MainNavigator />
@@ -52,7 +53,11 @@ function MainApp() {
         component={HomeScreen}
         options={{ headerShown: false }}
       />
-      <navigator.Screen name="Song Finder" component={SongFinderScreen} />
+      <navigator.Screen
+        name="Song Finder"
+        component={SongFinderScreen}
+        options={{ headerShown: false }}
+      />
       <navigator.Screen name="Settings" component={SettingsScreen} />
     </homeNavigator.Navigator>
   );

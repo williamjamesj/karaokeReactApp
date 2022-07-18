@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/singKaraokeSplashScreen.gif",
       "resizeMode": "contain",
-      "backgroundColor": "#2740b6"
+      "backgroundColor": "#6b79c1"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

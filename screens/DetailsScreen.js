@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Platform,
   ScrollView,
+  Image,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ENDPOINT_URL } from "./LoginScreen";
@@ -22,29 +23,34 @@ export function DetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [lyrics, setLyrics] = useState("");
   useEffect(() => {
-    getLyrics(
-      route.params.artist,
-      route.params.songName,
-      setLoading,
-      setLyrics
-    );
+    getData(route.params.artist, route.params.songName, setLoading, setLyrics);
   }, []);
   let songName = route.params.songName;
   let artist = route.params.artist;
+  let imageURL = route.params.imageURL;
   return (
     <SafeAreaView>
       <ScrollView>
         <FlashMessage position="top" floating={true} />
         <LoadingIndicator active={loading} />
-        <Text style={stylesGlobal.title}>{songName}</Text>
-        <Text style={stylesGlobal.subtitle}>by {artist}</Text>
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ flex: 2, justifyContent: "space-between" }}>
+            <Text style={stylesGlobal.title}>{songName}</Text>
+            <Text style={stylesGlobal.subtitle}>by {artist}</Text>
+            <Text style={stylesGlobal.bigText}>Lyrics: </Text>
+          </View>
+          <Image
+            source={{ uri: imageURL }}
+            style={{ width: 125, height: 125, resizeMode: "contain" }}
+          />
+        </View>
         <Text>{lyrics}</Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function getLyrics(artist, songName, setLoading, setLyrics) {
+function getData(artist, songName, setLoading, setLyrics) {
   setLoading(true);
   fetch(ENDPOINT_URL + "/get_lyrics", {
     method: "POST",

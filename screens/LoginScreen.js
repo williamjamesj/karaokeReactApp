@@ -21,7 +21,7 @@ export const UserContext = createContext({
   setAuthenticated: () => {},
 });
 
-export const ENDPOINT_URL = "http://10.10.72.253:5000";
+export const ENDPOINT_URL = "http://10.10.72.169:5000";
 
 // export const UserData = createContext({ // I don't think I'm going to need to save UserData like this.
 //   data: {},
@@ -174,6 +174,12 @@ function tokenificate(token, setAuthenticated, setLoading) {
       handleResponse(json, setAuthenticated, setLoading);
     })
     .catch((error) => {
+      setLoading(false);
+      showMessage({
+        message:
+          "Error connecting to server. Please check your internet connection.",
+        type: "danger",
+      });
       console.log(error);
     });
 }

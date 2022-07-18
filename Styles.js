@@ -5,9 +5,14 @@ const stylesGlobal = StyleSheet.create({
     // backgroundColor: "#1F46D6",
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-around",
   },
   text: {
+    color: "black",
+    alignSelf: "center",
+  },
+  bigText: {
+    fontSize: 20,
     color: "black",
   },
   input: {
@@ -23,7 +28,7 @@ const stylesGlobal = StyleSheet.create({
     color: "#303136",
   },
   title: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "bold",
     color: "black",
   },
