@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { View } from "react-native";
+import { View, StatusBar } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -9,6 +9,7 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 import { TwoFactorScreen } from "./screens/TwoFactorScreen";
 import { SongFinderScreen } from "./screens/SongFinderScreen";
+import { setStatusBarStyle } from "expo-status-bar";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
@@ -27,6 +28,7 @@ function App() {
 
 function MainApp() {
   // This tab navigator contains all of the features of the project, except for login.
+  setStatusBarStyle("dark-content");
   return (
     <homeNavigator.Navigator
       screenOptions={({ route }) => ({

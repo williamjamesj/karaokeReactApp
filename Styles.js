@@ -1,4 +1,58 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Pressable, View, Text } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+export function BigButton({
+  doOnPress,
+  text,
+  weightLoss = "80%",
+  chevron = true,
+}) {
+  return (
+    <View style={{ alignItems: "center", height: 75, padding: 10 }}>
+      <Pressable
+        style={{
+          backgroundColor: "#091540",
+          borderRadius: 10,
+          padding: 10,
+          width: weightLoss,
+          height: "100%",
+          alignItems: "center",
+        }}
+        onPress={doOnPress}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            alignContent: "center",
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 25,
+              flex: 5,
+              alignContent: "center",
+              alignSelf: "center",
+            }}
+          >
+            {text}
+          </Text>
+          {chevron ? (
+            <Ionicons
+              name="chevron-forward-outline"
+              style={{
+                fontSize: 25,
+                alignSelf: "center",
+              }}
+              color="white"
+            />
+          ) : null}
+        </View>
+      </Pressable>
+    </View>
+  );
+}
 
 const stylesGlobal = StyleSheet.create({
   background: {
@@ -6,6 +60,7 @@ const stylesGlobal = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-around",
+    width: "100%",
   },
   text: {
     color: "black",

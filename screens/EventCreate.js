@@ -1,13 +1,68 @@
-import { View, Text, TextInput } from "react-native";
+import { View, Text, TextInput, Dimensions } from "react-native";
 import { useState, useEffect } from "react";
 import { stylesGlobal } from "../Styles";
+import MapView from "react-native-maps";
+import { Marker } from "react-native-maps";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import FlashMessage from "react-native-flash-message";
 import * as Location from "expo-location";
+import { BigButton } from "../Styles";
 
-export function EventCreateScreen() {
+const Stack = createNativeStackNavigator();
+
+export function EventCreationFlow({ route, navigation }) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Create Event"
+        component={EventCreateScreen}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="Map"
+        component={EventMapScreen}
+        options={{ headerShown: true, headerTransparent: true }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function EventMapScreen({ route, navigation }) {
+  return (
+    <View>
+      <MapView
+        style={{
+          width: Dimensions.get("window").width,
+          height: Dimensions.get("window").height * 0.9,
+        }}
+        region={{
+          longitude: route.params.longitude,
+          latitude: route.params.latitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+      >
+        <Marker
+          coordinate={{
+            longitude: route.params.longitude,
+            latitude: route.params.latitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        />
+      </MapView>
+      <Text>{route.params.location}</Text>
+    </View>
+  );
+}
+
+function EventCreateScreen({ route, navigation }) {
   const [location, setLocation] = useState(null);
+  const [newLocation, setNewLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [reversedLocation, setReversedLocation] = useState(null);
+  const [reversedLocation, setReversedLocation] = useState(
+    "Loading Location..."
+  );
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -20,8 +75,8 @@ export function EventCreateScreen() {
       setLocation(location);
     })();
   }, []);
-  let lat = "Waiting..";
-  let long = "Waiting..";
+  let lat = "Waiting...";
+  let long = "Waiting...";
   if (errorMsg) {
     lat = errorMsg;
     long = errorMsg;
@@ -33,35 +88,56 @@ export function EventCreateScreen() {
   return (
     <View style={[stylesGlobal.background]}>
       <FlashMessage position="top" floating={true} />
-      <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
-        <View>
-          <Text style={stylesGlobal.text}>Title:</Text>
-        </View>
-        <TextInput style={[stylesGlobal.input, { height: "10%" }]}></TextInput>
-      </View>
-      <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
-        <View>
-          <Text style={stylesGlobal.text}>Description:</Text>
-        </View>
-        <TextInput style={[stylesGlobal.input, { height: "10%" }]}></TextInput>
-      </View>
-      <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
-        <View>
-          <Text style={stylesGlobal.text}>Latitude:</Text>
-        </View>
-        <TextInput style={[stylesGlobal.input, { height: "10%" }]}>
-          {lat}
-        </TextInput>
-      </View>
-      <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
-        <View>
-          <Text style={stylesGlobal.text}>Longitude:</Text>
-        </View>
-        <TextInput style={[stylesGlobal.input, { height: "10%" }]}>
-          {long}
-        </TextInput>
-      </View>
+      <FormInput title="Title:"></FormInput>
+      <FormInput title="Description:"></FormInput>
       <Text style={{ flex: 1 }}>{reversedLocation}</Text>
+      <BigButton
+        doOnPress={() =>
+          navigation.navigate("Map", {
+            latitude: lat,
+            longitude: long,
+            setNewLocation: setNewLocation,
+          })
+        }
+        text="Change Location"
+      />
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <BigButton
+          doOnPress={() => {
+            console.log("Submission.");
+          }}
+          text="Submit"
+          weightLoss={150}
+          chevron={false}
+        />
+        <BigButton
+          doOnPress={() => {
+            navigation.goBack();
+          }}
+          text="Cancel"
+          weightLoss={150}
+          chevron={false}
+        />
+      </View>
+    </View>
+  );
+}
+
+function FormInput(props) {
+  return (
+    <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+      <View>
+        <Text style={stylesGlobal.text}>{props.title}</Text>
+      </View>
+      <TextInput style={[stylesGlobal.input, { height: "20%" }]}>
+        {props.children}
+      </TextInput>
     </View>
   );
 }

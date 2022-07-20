@@ -25,7 +25,8 @@
     "react-native-web": "0.17.7",
     "undefined": "@expo/vector-icons/Ionicons",
     "webpack-dev-server": "^4.9.1",
-    "expo-location": "~14.2.2"
+    "expo-location": "~14.2.2",
+    "react-native-maps": "0.30.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
