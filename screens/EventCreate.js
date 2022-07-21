@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Dimensions, SafeAreaView } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { stylesGlobal } from "../Styles";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
@@ -8,8 +8,20 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import * as Location from "expo-location";
 import { BigButton } from "../Styles";
+import parseErrorStack from "react-native/Libraries/Core/Devtools/parseErrorStack";
 
 const Stack = createNativeStackNavigator();
+
+export const LatitudeContext = createContext({
+  // The user context stores all of the relevant user data.
+  latitude: 0,
+  setLatitude: () => {},
+});
+export const LongitudeContext = createContext({
+  // The user context stores all of the relevant user data.
+  longitude: 0,
+  setLongitude: () => {},
+});
 
 export function EventCreationFlow({ route, navigation }) {
   return (
@@ -29,10 +41,11 @@ export function EventCreationFlow({ route, navigation }) {
 }
 
 function EventMapScreen({ route, navigation }) {
-  const [latitude, setLatitude] = useState(route.params.latitude);
-  const [longitude, setLongitude] = useState(route.params.longitude);
   const [locationName, setLocationName] = useState("");
+  const { latitude, setLatitude } = useContext(LatitudeContext);
+  const { longitude, setLongitude } = useContext(LongitudeContext);
   useEffect(() => {
+    console.log(latitude);
     reverseGeocode(latitude, longitude, setLocationName);
   }, []);
   return (
@@ -58,8 +71,8 @@ function EventMapScreen({ route, navigation }) {
         >
           <Marker
             coordinate={{
-              longitude: route.params.longitude,
-              latitude: route.params.latitude,
+              longitude: latitude,
+              latitude: longitude,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
@@ -85,9 +98,8 @@ function EventMapScreen({ route, navigation }) {
 function EventCreateScreen({ route, navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [reversedLocation, setReversedLocation] = useState(
-    "Press Refresh Location to find the name of the location you have selected."
-  );
+  const { latitude, setLatitude } = useContext(LatitudeContext);
+  const { longitude, setLongitude } = useContext(LongitudeContext);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -97,32 +109,30 @@ function EventCreateScreen({ route, navigation }) {
       }
 
       let location = await Location.getCurrentPositionAsync({});
+      setLatitude(location.coords.latitude);
+      setLongitude(location.coords.longitude);
       setLocation(location);
+      console.log(latitude);
+      console.log(longitude);
     })();
   }, []);
-  let lat = "Waiting...";
-  let long = "Waiting...";
   if (errorMsg) {
-    lat = errorMsg;
-    long = errorMsg;
+    showMessage({
+      message: `Error finding location: ${errorMsg}`,
+      type: "danger",
+    });
   } else if (location) {
-    lat = location.coords.latitude;
-    long = location.coords.longitude;
+    console.log("Location found!");
   }
   return (
     <View style={[stylesGlobal.background]}>
       <FlashMessage position="top" floating={true} />
       <FormInput title="Title:"></FormInput>
       <FormInput title="Description:"></FormInput>
-      <FormInput title="Latitude:">{lat}</FormInput>
-      <FormInput title="Longitude:">{long}</FormInput>
+      <FormInput title="Latitude:">{latitude}</FormInput>
+      <FormInput title="Longitude:">{longitude}</FormInput>
       <BigButton
-        doOnPress={() =>
-          navigation.navigate("Map", {
-            latitude: lat,
-            longitude: long,
-          })
-        }
+        doOnPress={() => navigation.navigate("Map", {})}
         text="Change Location"
       />
       <View
@@ -172,9 +182,6 @@ function reverseGeocode(
   setReversedLocation,
   requiredData = "display_name"
 ) {
-  console.log(
-    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat.toString()}&lon=${long.toString()}`
-  );
   console.log("------------ Requesting ------------");
   fetch(
     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat.toString()}&lon=${long.toString()}`,
