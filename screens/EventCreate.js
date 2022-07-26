@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import * as Location from "expo-location";
-import { BigButton } from "../Styles";
+import { BigButton, FormInput } from "../Styles";
 import parseErrorStack from "react-native/Libraries/Core/Devtools/parseErrorStack";
 
 const Stack = createNativeStackNavigator();
@@ -159,19 +159,6 @@ function EventCreateScreen({ route, navigation }) {
           chevron={false}
         />
       </View>
-    </View>
-  );
-}
-
-function FormInput(props) {
-  return (
-    <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
-      <View>
-        <Text style={stylesGlobal.text}>{props.title}</Text>
-      </View>
-      <TextInput style={[stylesGlobal.input, { height: "20%" }]}>
-        {props.children}
-      </TextInput>
     </View>
   );
 }

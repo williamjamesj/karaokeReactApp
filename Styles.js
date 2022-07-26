@@ -1,5 +1,21 @@
-import { StyleSheet, Pressable, View, Text } from "react-native";
+import { StyleSheet, Pressable, View, Text, TextInput } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+
+export function FormInput(props) {
+  return (
+    <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+      <View>
+        <Text style={stylesGlobal.text}>{props.title}</Text>
+      </View>
+      <TextInput
+        style={[stylesGlobal.input, { height: "20%" }]}
+        onChangeText={props.onChange}
+      >
+        {props.children}
+      </TextInput>
+    </View>
+  );
+}
 
 export function BigButton({
   doOnPress,

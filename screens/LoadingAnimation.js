@@ -2,7 +2,7 @@ import { View, ActivityIndicator, Modal } from "react-native";
 
 export function LoadingIndicator(props) {
   return (
-    <Modal visible={props["active"]} transparent={true}>
+    <Modal visible={props.active} transparent={true}>
       <View
         style={{
           flex: 1,

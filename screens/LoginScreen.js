@@ -11,7 +11,7 @@ import { useState, createContext, useContext, useRef, useEffect } from "react";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import { LoadingIndicator } from "./LoadingAnimation";
-import { stylesGlobal } from "../Styles";
+import { BigButton, stylesGlobal } from "../Styles";
 import { setItemAsync, getItemAsync } from "expo-secure-store";
 import { setToken, getToken, wipeKey } from "./Storage";
 
@@ -21,14 +21,14 @@ export const UserContext = createContext({
   setAuthenticated: () => {},
 });
 
-export const ENDPOINT_URL = "http://10.10.72.169:5000";
+export const ENDPOINT_URL = "http://192.168.0.173:5000";
 
 // export const UserData = createContext({ // I don't think I'm going to need to save UserData like this.
 //   data: {},
 //   setData: () => {},
 // });
 
-export function LoginScreen() {
+export function LoginScreen({ route, navigation }) {
   const { setAuthenticated } = useContext(UserContext); // The setAuthenticated object will navigate the user to the next screen if it is set to true.
   const [loading, setLoading] = useState(false); // This state is set while the app is waiting for a response from the server, and controls the loading indicator.
   const [token, setToken] = useState(null);
@@ -91,11 +91,15 @@ export function LoginScreen() {
         ref={passwordField}
       />
       <Button
-        title="Submit"
+        title="Log In"
         onPress={() => {
           callSubmit(credentials, setAuthenticated, setLoading);
         }}
       />
+      <BigButton
+        text="Sign Up"
+        doOnPress={() => setAuthenticated("register")}
+      ></BigButton>
     </KeyboardAvoidingView>
   );
 }

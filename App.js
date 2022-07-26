@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { RegistrationScreen } from "./screens/RegistrationScreen";
 import { LoginScreen, UserContext } from "./screens/LoginScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
@@ -80,6 +81,12 @@ function MainNavigator() {
         <navigator.Screen
           name="Two Factor Authentication"
           component={TwoFactorScreen}
+          options={{ headerShown: true }}
+        />
+      ) : authenticated == "register" ? (
+        <navigator.Screen
+          name="Registration"
+          component={RegistrationScreen}
           options={{ headerShown: true }}
         />
       ) : (
