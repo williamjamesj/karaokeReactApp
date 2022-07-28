@@ -16,6 +16,7 @@ const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
 
 function App() {
+  // This is the entry point into the app.
   const [authenticated, setAuthenticated] = useState(false);
   return (
     // Establish the user context, and initialise the main navigator.
@@ -31,20 +32,18 @@ function MainApp() {
   // This tab navigator contains all of the features of the project, except for login.
   setStatusBarStyle("dark-content");
   return (
-    <homeNavigator.Navigator
+    <homeNavigator.Navigator // This home navigator contains the main navbar that is visible after the authentication flow, and present throughout most of the app.
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === "Home") {
-            iconName = focused ? "home" : "home-outline";
+            // This if else block determines which icon is displayed on the navbar.
+            iconName = focused ? "home" : "home-outline"; // If the tab is selected, a different icon will be displayed to when it is not selected.
           } else if (route.name === "Song Finder") {
             iconName = focused ? "musical-note" : "musical-note-sharp";
           } else if (route.name === "Settings") {
             iconName = focused ? "cog" : "cog-outline";
           }
-
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "blue",
@@ -73,25 +72,25 @@ function MainNavigator() {
     <navigator.Navigator>
       {authenticated == true ? ( // When the user has authenticated, they get access to the main app.
         <navigator.Screen
-          name="Main App"
+          name="Main App" // The main app includes many sub-navigators, but here is where it is first initialised.
           component={MainApp}
           options={{ headerShown: false }}
         />
       ) : authenticated == "2fa" ? (
         <navigator.Screen
-          name="Two Factor Authentication"
+          name="Two Factor Authentication" // The login page will change to this page if 2fa is required for authentication.
           component={TwoFactorScreen}
           options={{ headerShown: true }}
         />
       ) : authenticated == "register" ? (
         <navigator.Screen
-          name="Registration"
+          name="Registration" // This page will be selected if the user chooses to create an acccount.
           component={RegistrationScreen}
           options={{ headerShown: true }}
         />
       ) : (
         <navigator.Screen
-          name="Login"
+          name="Login" // This is the default page, and when it loads, the app will attempt to authenticate with a token first.
           component={LoginScreen}
           options={{ headerShown: false }}
         />
@@ -100,4 +99,4 @@ function MainNavigator() {
   );
 }
 
-export default App;
+export default App; // Set App as the entry point.

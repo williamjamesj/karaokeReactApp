@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { EventCreationFlow } from "./EventCreate";
 import { stylesGlobal } from "../Styles";
 import { BigButton } from "../Styles";
+import AudioRecordScreen from "./AudioRecordScreen";
 const Stack = createNativeStackNavigator();
 
 export function HomeScreen() {
@@ -21,6 +22,11 @@ export function HomeScreen() {
         component={EventCreationFlow}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="Audio Record"
+        component={AudioRecordScreen}
+        options={{ headerShown: true }}
+      />
     </Stack.Navigator>
   );
 }
@@ -33,7 +39,10 @@ export function MainHomeScreen({ route, navigation }) {
           doOnPress={() => navigateToEventCreate(navigation)}
           text="Create Event"
         />
-        <BigButton doOnPress={dummyOnClick} text="Record Audio" />
+        <BigButton
+          text="Record Audio"
+          doOnPress={() => navigation.navigate("Audio Record")}
+        />
       </ScrollView>
     </SafeAreaView>
   );

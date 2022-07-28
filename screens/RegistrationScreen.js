@@ -35,56 +35,80 @@ export function RegistrationScreen({ route, navigation }) {
           onChange={(username) => {
             setUsername(username);
           }}
+          textContentType="username"
+          autoComplete="username-new"
+          autoCorrect={false}
         />
         <FormInput
           title="Email: "
           onChange={(email) => {
             setEmail(email);
           }}
+          autoComplete="email"
+          autoCorrect={false}
+          textContentType="emailAddress"
         />
         <FormInput
           title="Password: "
           onChange={(password) => {
             setPassword(password);
           }}
+          secureTextEntry={true}
+          textContentType="newPassword"
         />
         <FormInput
           title="Confirm Password: "
           onChange={(confirmPassword) => {
             setConfirmPassword(confirmPassword);
           }}
+          secureTextEntry={true}
+          textContentType="password"
         />
-        <BigButton
-          text="Register"
-          doOnPress={() => {
-            if (
-              email != "" &&
-              password != "" &&
-              confirmPassword != "" &&
-              username != ""
-            ) {
-              // Check that all fields have entries
-              if (password == confirmPassword) {
-                // Check that the passwords match
-                register(
-                  { username, email, password, confirmPassword },
-                  setAuthenticated,
-                  setLoading
-                );
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          <BigButton
+            text="Back"
+            weightLoss={150}
+            doOnPress={() => setAuthenticated("login")}
+          />
+          <BigButton
+            text="Register"
+            doOnPress={() => {
+              if (
+                email != "" &&
+                password != "" &&
+                confirmPassword != "" &&
+                username != ""
+              ) {
+                // Check that all fields have entries
+                if (password == confirmPassword) {
+                  // Check that the passwords match
+                  register(
+                    { username, email, password, confirmPassword },
+                    setAuthenticated,
+                    setLoading
+                  );
+                } else {
+                  showMessage({
+                    message: "Passwords do not match.",
+                    type: "danger",
+                  });
+                }
               } else {
                 showMessage({
-                  message: "Passwords do not match.",
+                  message: "Please fill in all fields.",
                   type: "danger",
                 });
               }
-            } else {
-              showMessage({
-                message: "Please fill in all fields.",
-                type: "danger",
-              });
-            }
-          }}
-        />
+            }}
+            weightLoss={150}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -21,7 +21,7 @@ export const UserContext = createContext({
   setAuthenticated: () => {},
 });
 
-export const ENDPOINT_URL = "http://192.168.0.173:5000";
+export const ENDPOINT_URL = "http://10.10.72.169:5000";
 
 // export const UserData = createContext({ // I don't think I'm going to need to save UserData like this.
 //   data: {},
@@ -31,21 +31,23 @@ export const ENDPOINT_URL = "http://192.168.0.173:5000";
 export function LoginScreen({ route, navigation }) {
   const { setAuthenticated } = useContext(UserContext); // The setAuthenticated object will navigate the user to the next screen if it is set to true.
   const [loading, setLoading] = useState(false); // This state is set while the app is waiting for a response from the server, and controls the loading indicator.
+  const [emailUsername, setEmailUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [token, setToken] = useState(null);
   useEffect(() => {
     // Retrieve the token from the secure storage.
     async function retrieveToken() {
       if (Platform.OS !== "web") {
+        // If the app is being tested on a web-based platform, secure storage will not function.
         const token = await getItemAsync("token");
         setToken(token);
         if (token != null) {
-          tokenificate(token, setAuthenticated, setLoading);
+          tokenificate(token, setAuthenticated, setLoading); // Once the token has been retrieved,
         }
       }
     }
     retrieveToken();
   }, []);
-  let credentials = { email: "", password: "" };
   let emailField = useRef();
   let passwordField = useRef(); // Allows the password field to be focused once the email field is completed.
   return (
@@ -59,13 +61,13 @@ export function LoginScreen({ route, navigation }) {
       {/* The flash message informs the user when they have to take action (e.g. invalid credentials). */}
       <View>
         {/* Not sure why, but the labels have to be wrapped in a view, otherwise they don't move properly with the KeyboardAvoidingView animation. */}
-        <Text style={stylesGlobal.text}>Email:</Text>
+        <Text style={stylesGlobal.text}>Email or Username:</Text>
       </View>
       <TextInput
         style={styles.loginInput}
-        textContentType={"emailAddress"}
-        onChangeText={(text) => (credentials["email"] = text)}
-        autoComplete={"email"}
+        textContentType="username"
+        onChangeText={(emailUsername) => setEmailUsername(emailUsername)}
+        autoComplete="username"
         autoCapitalize="none"
         onSubmitEditing={() => passwordField.current.focus()} // Once the user presses next on their keyboard, focus the password field.
         keyboardType="email-address"
@@ -80,11 +82,15 @@ export function LoginScreen({ route, navigation }) {
         style={styles.loginInput}
         textContentType={"password"}
         secureTextEntry={true}
-        onChangeText={(text) => (credentials["password"] = text)}
+        onChangeText={(password) => setPassword(password)}
         autoCapitalize="none"
         autoCorrect={false}
         onSubmitEditing={() =>
-          callSubmit(credentials, setAuthenticated, setLoading)
+          callSubmit(
+            { emailUsername: emailUsername, password: password },
+            setAuthenticated,
+            setLoading
+          )
         }
         returnKeyType="done"
         blurOnSubmit={true}
@@ -93,7 +99,11 @@ export function LoginScreen({ route, navigation }) {
       <Button
         title="Log In"
         onPress={() => {
-          callSubmit(credentials, setAuthenticated, setLoading);
+          callSubmit(
+            { emailUsername: emailUsername, password: password },
+            setAuthenticated,
+            setLoading
+          );
         }}
       />
       <BigButton

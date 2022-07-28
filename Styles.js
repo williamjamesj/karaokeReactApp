@@ -2,14 +2,28 @@ import { StyleSheet, Pressable, View, Text, TextInput } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export function FormInput(props) {
+  let flex = 1;
+  if (props.flex == undefined) {
+    flex = props.flex;
+  }
   return (
-    <View style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        flex: flex,
+        alignItems: "center",
+        justifyContent: "space-between",
+        maxHeight: 100,
+      }}
+    >
       <View>
         <Text style={stylesGlobal.text}>{props.title}</Text>
       </View>
       <TextInput
-        style={[stylesGlobal.input, { height: "20%" }]}
+        style={[stylesGlobal.input, { height: "20%", minHeight: 30 }]}
         onChangeText={props.onChange}
+        secureTextEntry={props.secureTextEntry}
+        multiline={props.multiline}
       >
         {props.children}
       </TextInput>
@@ -18,13 +32,23 @@ export function FormInput(props) {
 }
 
 export function BigButton({
+  style = {},
   doOnPress,
   text,
   weightLoss = "80%",
   chevron = true,
 }) {
   return (
-    <View style={{ alignItems: "center", height: 75, padding: 10 }}>
+    <View
+      style={[
+        {
+          alignItems: "center",
+          height: 75,
+          padding: 10,
+        },
+        style,
+      ]}
+    >
       <Pressable
         style={{
           backgroundColor: "#091540",

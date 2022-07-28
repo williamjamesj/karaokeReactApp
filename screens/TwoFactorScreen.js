@@ -31,16 +31,22 @@ export function TwoFactorScreen() {
           Please enter your two-factor authentication code.
         </Text>
       </View>
-      <TextInput
-        style={styles.OTPInput}
-        textContentType={"oneTimeCode"}
-        onChangeText={(text) => (code = text)}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onSubmitEditing={() => submitToken(code, setAuthenticated, setLoading)}
-        returnKeyType="done"
-        blurOnSubmit={true}
-      />
+      <View
+        style={{ width: "100%", alignContent: "center", alignItems: "center" }}
+      >
+        <TextInput
+          style={[styles.OTPInput, { width: "80%" }]}
+          textContentType={"oneTimeCode"}
+          onChangeText={(text) => (code = text)}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onSubmitEditing={() =>
+            submitToken(code, setAuthenticated, setLoading)
+          }
+          returnKeyType="done"
+          blurOnSubmit={true}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
