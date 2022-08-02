@@ -6,6 +6,7 @@ import { EventCreationFlow } from "./EventCreate";
 import { stylesGlobal } from "../Styles";
 import { BigButton } from "../Styles";
 import AudioRecordScreen from "./AudioRecordScreen";
+import { SnippetViewScreen } from "./SnippetViewScreen";
 const Stack = createNativeStackNavigator();
 
 export function HomeScreen() {
@@ -40,7 +41,7 @@ export function MainHomeScreen({ route, navigation }) {
           text="Create Event"
         />
         <BigButton
-          text="Record Audio"
+          text="Record Audio Snippet"
           doOnPress={() => navigation.navigate("Audio Record")}
         />
       </ScrollView>

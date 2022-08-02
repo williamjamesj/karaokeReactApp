@@ -1,7 +1,48 @@
-import { StyleSheet, Pressable, View, Text, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Pressable,
+  View,
+  Text,
+  TextInput,
+  Switch,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export function FormInput(props) {
+  let flex = 1;
+  if (props.flex == undefined) {
+    flex = props.flex;
+  }
+  let height = "20%";
+  if (props.height !== undefined) {
+    height = props.height;
+  }
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        flex: flex,
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: height,
+      }}
+    >
+      <View>
+        <Text style={stylesGlobal.text}>{props.title}</Text>
+      </View>
+      <TextInput
+        style={[stylesGlobal.input, { height: height, minHeight: 30 }]}
+        onChangeText={props.onChange}
+        secureTextEntry={props.secureTextEntry}
+        multiline={props.multiline}
+      >
+        {props.children}
+      </TextInput>
+    </View>
+  );
+}
+
+export function FormToggleSwitch(props) {
   let flex = 1;
   if (props.flex == undefined) {
     flex = props.flex;
@@ -19,14 +60,13 @@ export function FormInput(props) {
       <View>
         <Text style={stylesGlobal.text}>{props.title}</Text>
       </View>
-      <TextInput
-        style={[stylesGlobal.input, { height: "20%", minHeight: 30 }]}
-        onChangeText={props.onChange}
-        secureTextEntry={props.secureTextEntry}
-        multiline={props.multiline}
-      >
-        {props.children}
-      </TextInput>
+      <Switch
+        trackColor={{ false: "#091540", true: "#091540" }}
+        thumbColor={props.visible ? "#7DCD85" : "#44ccff"}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={props.onChange}
+        value={props.visible}
+      />
     </View>
   );
 }
