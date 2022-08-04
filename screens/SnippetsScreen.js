@@ -37,7 +37,7 @@ function SnippetsViewScreen({ route, navigation }) {
           <SnippetCard item={item} index={index} navigation={navigation} />
         )} // This SnippetCard is displayed for every item in the snippets array.
         extraData={snippets}
-      ></FlatList>
+      />
     </SafeAreaView>
   );
 }
@@ -68,6 +68,12 @@ function SnippetCard({ item, index, navigation }) {
         padding: 5,
         margin: 5,
         backgroundColor: "#D4D5D8",
+        // https://stackoverflow.com/questions/50162879/create-raised-or-shadow-effect-on-touchableopacity-react-native - makes the cards look like they are elevated.
+        shadowColor: "rgba(0,0,0, .4)", // IOS
+        shadowOffset: { height: 1, width: 1 }, // IOS
+        shadowOpacity: 1, // IOS
+        shadowRadius: 1, //IOS
+        elevation: 2, // Android
       }}
       onPress={() =>
         navigation.navigate("SnippetView", { snippetID: item.item.snippetID })
