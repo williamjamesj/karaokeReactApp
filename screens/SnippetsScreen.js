@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SnippetViewScreen } from "./SnippetViewScreen";
 import { useEffect, useState } from "react";
 import { ENDPOINT_URL } from "./LoginScreen";
+import { LoadingIndicator } from "./LoadingAnimation";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Stack = createNativeStackNavigator();
@@ -26,11 +27,13 @@ export function SnippetsScreen({ route, navigation }) {
 
 function SnippetsViewScreen({ route, navigation }) {
   const [snippets, setSnippets] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    retrieveSnippets(setSnippets);
+    retrieveSnippets(setSnippets, setLoading);
   }, []);
   return (
     <SafeAreaView>
+      <LoadingIndicator active={loading} />
       <FlatList
         data={snippets}
         renderItem={(item, index) => (
@@ -41,7 +44,8 @@ function SnippetsViewScreen({ route, navigation }) {
     </SafeAreaView>
   );
 }
-function retrieveSnippets(setSnippets) {
+function retrieveSnippets(setSnippets, setLoading) {
+  setLoading(true);
   console.log("retrieving snippets");
   fetch(ENDPOINT_URL + "/snippetsList", {
     method: "POST",
@@ -51,7 +55,10 @@ function retrieveSnippets(setSnippets) {
     },
   })
     .then((response) => response.json())
-    .then((json) => setSnippets(json))
+    .then((json) => {
+      setSnippets(json);
+      setLoading(false);
+    })
     .catch((error) => console.log(error));
 }
 

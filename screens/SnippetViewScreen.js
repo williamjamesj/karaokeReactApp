@@ -33,6 +33,20 @@ export function SnippetViewScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [doPlay, setDoPlay] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [shouldRetrieve, setShouldRetrieve] = useState(false);
+  if (shouldRetrieve) {
+    setShouldRetrieve(false);
+    retrieveSnippetData(
+      route.params.snippetID,
+      setCreatorName,
+      setSnippetTitle,
+      setSnippetDescription,
+      setLoading,
+      navigation,
+      creatorName,
+      setComments
+    );
+  }
   useLayoutEffect(() => {
     navigation.setOptions({
       title: snippetTitle + " by " + creatorName, // Changes the title from "Loading..." to the title and author of the snippet.
@@ -60,7 +74,9 @@ export function SnippetViewScreen({ route, navigation }) {
         <View>
           <LoadingIndicator active={loading} />
           <FlashMessage position="top" floating={true} />
-          <Text style={stylesGlobal.title}>{snippetTitle}</Text>
+          <Text style={[stylesGlobal.title, { marginTop: 5, marginBottom: 5 }]}>
+            {snippetTitle}
+          </Text>
           <Text style={stylesGlobal.subtitle}>Shared By: {creatorName}</Text>
           <View
             style={{
@@ -95,9 +111,22 @@ export function SnippetViewScreen({ route, navigation }) {
           />
           <BigButton
             text="Submit"
-            doOnPress={() => submitComment(commentText, route.params.snippetID)}
+            doOnPress={() =>
+              submitComment(
+                commentText,
+                route.params.snippetID,
+                setShouldRetrieve
+              )
+            }
           />
-          <Text style={{ marginTop: 10, marginLeft: 10 }}>
+          <Text
+            style={{
+              marginTop: 10,
+              marginLeft: 10,
+              fontSize: 20,
+              fontWeight: "bold",
+            }}
+          >
             {comments.length != 0 && comments ? "Comments:" : "No comments."}
           </Text>
           <FlatList
@@ -126,7 +155,6 @@ function likeSnippet(snippetID) {
     body: JSON.stringify({ snippetID: snippetID }),
   }).then((response) => {
     response.json().then((json) => {
-      console.log(json);
       if (json["status"] == "alreadyLiked") {
         showMessage({
           message: "This snippet has been already liked.",
@@ -139,7 +167,7 @@ function likeSnippet(snippetID) {
   });
 }
 
-function submitComment(commentText, snippetID) {
+function submitComment(commentText, snippetID, setShouldRetrieve) {
   fetch(ENDPOINT_URL + "/submit_comment", {
     method: "POST",
     headers: {
@@ -150,6 +178,7 @@ function submitComment(commentText, snippetID) {
   }).then((response) => {
     response.json().then((json) => {
       showMessage({ message: "Comment posted.", type: "success" });
+      setShouldRetrieve(true);
     });
   });
 }
