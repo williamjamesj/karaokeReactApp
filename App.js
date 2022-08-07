@@ -76,7 +76,11 @@ function MainApp() {
         component={AudioRecordScreen}
         options={{ headerShown: true }}
       />
-      <navigator.Screen name="Settings" component={SettingsScreen} />
+      <navigator.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
     </homeNavigator.Navigator>
   );
 }

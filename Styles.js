@@ -43,6 +43,7 @@ export function FormInput(props) {
         onChangeText={props.onChange}
         secureTextEntry={props.secureTextEntry}
         multiline={props.multiline}
+        textContentType={props.textContentType}
       >
         {props.children}
       </TextInput>
