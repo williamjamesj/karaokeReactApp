@@ -1,40 +1,42 @@
-import { View, Text, TextInput, Dimensions, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  Button,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { useState, useEffect, createContext, useContext } from "react";
 import { stylesGlobal } from "../Styles";
 import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { showMessage, hideMessage } from "react-native-flash-message";
+import { LoadingIndicator } from "./LoadingAnimation";
 import FlashMessage from "react-native-flash-message";
 import * as Location from "expo-location";
 import { BigButton, FormInput } from "../Styles";
-import parseErrorStack from "react-native/Libraries/Core/Devtools/parseErrorStack";
+import { ENDPOINT_URL } from "./LoginScreen";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const Stack = createNativeStackNavigator();
 
-export const LatitudeContext = createContext({
-  // The user context stores all of the relevant user data.
-  latitude: 0,
-  setLatitude: () => {},
-});
-export const LongitudeContext = createContext({
-  // The user context stores all of the relevant user data.
-  longitude: 0,
-  setLongitude: () => {},
-});
-
 export function EventCreationFlow({ route, navigation }) {
+  // The flow of the event creation is: Pick location on map -> enter details about events -> submit event
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="Create Event"
-        component={EventCreateScreen}
-        options={{ headerShown: true }}
-      />
       <Stack.Screen
         name="Map"
         component={EventMapScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Create Event"
+        component={EventCreateScreen}
+        options={{ headerShown: true }}
       />
     </Stack.Navigator>
   );
@@ -42,125 +44,216 @@ export function EventCreationFlow({ route, navigation }) {
 
 function EventMapScreen({ route, navigation }) {
   const [locationName, setLocationName] = useState("");
-  const { latitude, setLatitude } = useContext(LatitudeContext);
-  const { longitude, setLongitude } = useContext(LongitudeContext);
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+  const [originalLatitude, setOriginalLatitude] = useState(0);
+  const [originalLongitude, setOriginalLongitude] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    console.log(latitude);
-    reverseGeocode(latitude, longitude, setLocationName);
+    (async () => {
+      setLoading(true);
+      console.log("Location Start");
+      let { status } = await Location.requestForegroundPermissionsAsync(); // This takes a good while to process, so give the user the loading indicator while it runs. Likely misconfigured.
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      } else {
+        let location = await Location.getCurrentPositionAsync({});
+        setLatitude(location.coords.latitude);
+        setLongitude(location.coords.longitude);
+        setOriginalLatitude(location.coords.latitude);
+        setOriginalLongitude(location.coords.longitude);
+        setLoading(false); // Stop loading, the location has been found.
+        reverseGeocode(
+          // The geocode requests are quite fast, and it doesn't really matter if it happens after the loading indicator.
+          location.coords.latitude,
+          location.coords.longitude,
+          setLocationName
+        );
+        setLoaded(true);
+      }
+    })();
   }, []);
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <LoadingIndicator active={loading} />
       <FlashMessage position="top" floating={true} />
       <View
         style={{
-          height: "90%",
+          height: "80%",
         }}
       >
-        <MapView
-          style={{
-            height: "100%",
-            width: "100%",
-          }}
-          tracksViewChanges={false}
-          region={{
-            longitude: longitude,
-            latitude: latitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-        >
-          <Marker
-            coordinate={{
-              longitude: latitude,
-              latitude: longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+        {loaded ? ( // Wait until the location has been found to display the map, otherwise the map starts at Null Island.
+          <MapView
+            style={{
+              height: "100%",
+              width: "100%",
             }}
-            draggable
-            scrollEnabled={true}
-            onDragEnd={(e) => {
-              setLatitude(e.nativeEvent.coordinate["latitude"]);
-              setLongitude(e.nativeEvent.coordinate["longitude"]);
-              reverseGeocode(latitude, longitude, setLocationName);
+            tracksViewChanges={false}
+            initialRegion={{
+              longitude: originalLongitude,
+              latitude: originalLatitude,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
-          />
-        </MapView>
+          >
+            <MapView.Marker
+              coordinate={{ latitude: latitude, longitude: longitude }}
+              draggable
+              onDragEnd={(e) => {
+                setLatitude(e.nativeEvent.coordinate.latitude);
+                setLongitude(e.nativeEvent.coordinate.longitude);
+                reverseGeocode(
+                  e.nativeEvent.coordinate.latitude,
+                  e.nativeEvent.coordinate.longitude,
+                  setLocationName
+                );
+              }}
+            />
+          </MapView>
+        ) : null}
       </View>
-      <View style={{}}>
+      <ScrollView style={{}}>
         <Text>Latitude: {latitude}</Text>
         <Text>Longitude: {longitude}</Text>
         <Text>Location: {locationName}</Text>
-      </View>
+        <BigButton
+          text="Next"
+          doOnPress={() => {
+            navigation.navigate("Create Event", {
+              latitude: latitude,
+              longitude: longitude,
+            });
+          }}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 function EventCreateScreen({ route, navigation }) {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const { latitude, setLatitude } = useContext(LatitudeContext);
-  const { longitude, setLongitude } = useContext(LongitudeContext);
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [latitude, setLatitude] = useState(route.params.latitude);
+  const [longitude, setLongitude] = useState(route.params.longitude);
+  const [date, setDate] = useState(new Date());
+  const [isPickerShow, setIsPickerShow] = useState(true);
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLatitude(location.coords.latitude);
-      setLongitude(location.coords.longitude);
-      setLocation(location);
-      console.log(latitude);
-      console.log(longitude);
-    })();
-  }, []);
-  if (errorMsg) {
-    showMessage({
-      message: `Error finding location: ${errorMsg}`,
-      type: "danger",
-    });
-  } else if (location) {
-    console.log("Location found!");
-  }
+  const showPicker = () => {
+    setIsPickerShow(true);
+  };
+
   return (
-    <View style={[stylesGlobal.background]}>
-      <FlashMessage position="top" floating={true} />
-      <FormInput title="Title:"></FormInput>
-      <FormInput title="Description:"></FormInput>
-      <FormInput title="Latitude:">{latitude}</FormInput>
-      <FormInput title="Longitude:">{longitude}</FormInput>
-      <BigButton
-        doOnPress={() => navigation.navigate("Map", {})}
-        text="Change Location"
-      />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
-        <BigButton
-          doOnPress={() => {
-            console.log("Submission.");
-          }}
-          text="Submit"
-          weightLoss={150}
-          chevron={false}
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+    >
+      <View style={[stylesGlobal.background]}>
+        <FlashMessage position="top" floating={true} />
+        <FormInput
+          title="Title:"
+          onChange={(text) => setTitle(text)}
+        ></FormInput>
+        <FormInput
+          title="Description:"
+          onChange={(text) => setDescription(text)}
+          multiline={true}
+          height={200}
         />
-        <BigButton
-          doOnPress={() => {
-            navigation.goBack();
+
+        {/* The button that used to trigger the date picker */}
+        {!isPickerShow && (
+          <View>
+            <Button title="Show Picker" color="purple" onPress={showPicker} />
+          </View>
+        )}
+
+        {/* The date picker */}
+        {isPickerShow && (
+          <DateTimePicker
+            value={date}
+            mode="datetime"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            is24Hour={true}
+            onChange={(event, value) => {
+              setDate(value);
+              if (Platform.OS === "android") {
+                setIsPickerShow(false);
+              }
+            }}
+            style={{
+              width: 320,
+              height: 260,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
+            }}
+          />
+        )}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            width: "100%",
           }}
-          text="Cancel"
-          weightLoss={150}
-          chevron={false}
-        />
+        >
+          <BigButton
+            doOnPress={() => {
+              createEvent(
+                title,
+                description,
+                latitude,
+                longitude,
+                date,
+                navigation
+              );
+            }}
+            text="Submit"
+            weightLoss={150}
+            chevron={false}
+          />
+          <BigButton
+            doOnPress={() => {
+              navigation.navigate("Main");
+            }}
+            text="Cancel"
+            weightLoss={150}
+            chevron={false}
+          />
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
+}
+
+function createEvent(
+  title,
+  description,
+  latitude,
+  longitude,
+  date,
+  navigation
+) {
+  fetch(ENDPOINT_URL + "/create_event", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title: title,
+      description: description,
+      latitude: latitude,
+      longitude: longitude,
+      startTime: parseInt((date.getTime() / 1000).toFixed(0)),
+    }),
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      navigation.navigate("Main");
+    });
 }
 
 function reverseGeocode(
@@ -182,7 +275,6 @@ function reverseGeocode(
   )
     .then((response) => response.json())
     .then((json) => {
-      console.log(json);
       setReversedLocation(json[requiredData]);
     })
     .catch((error) => {

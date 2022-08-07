@@ -31,7 +31,15 @@ export function FormInput(props) {
         <Text style={stylesGlobal.text}>{props.title}</Text>
       </View>
       <TextInput
-        style={[stylesGlobal.input, { height: height, minHeight: 30 }]}
+        style={{
+          height: height,
+          minHeight: 30,
+          width: "75%",
+          maxWidth: 200,
+          margin: 20,
+          borderWidth: 1,
+          borderRadius: 5,
+        }}
         onChangeText={props.onChange}
         secureTextEntry={props.secureTextEntry}
         multiline={props.multiline}
@@ -55,6 +63,7 @@ export function FormToggleSwitch(props) {
         alignItems: "center",
         justifyContent: "space-between",
         maxHeight: 100,
+        margin: 5,
       }}
     >
       <View>

@@ -33,7 +33,7 @@ export function DetailsScreen({ route, navigation }) {
       <ScrollView>
         <FlashMessage position="top" floating={true} />
         <LoadingIndicator active={loading} />
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row", margin: 5 }}>
           <View style={{ flex: 2, justifyContent: "space-between" }}>
             <Text style={stylesGlobal.title}>{songName}</Text>
             <Text style={stylesGlobal.subtitle}>by {artist}</Text>
@@ -44,7 +44,8 @@ export function DetailsScreen({ route, navigation }) {
             style={{ width: 125, height: 125, resizeMode: "contain" }}
           />
         </View>
-        <Text>{lyrics}</Text>
+        <Text style={{ margin: 5 }}>{lyrics}</Text>
+        {/* The margin is necessary otherwise the text is almost unreadable at the start of the screen */}
       </ScrollView>
     </SafeAreaView>
   );

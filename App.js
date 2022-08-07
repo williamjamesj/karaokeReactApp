@@ -12,6 +12,7 @@ import { TwoFactorScreen } from "./screens/TwoFactorScreen";
 import { SongFinderScreen } from "./screens/SongFinderScreen";
 import { SnippetsScreen } from "./screens/SnippetsScreen";
 import { setStatusBarStyle } from "expo-status-bar";
+import { AudioRecordScreen } from "./screens/AudioRecordScreen";
 
 const navigator = createNativeStackNavigator();
 const homeNavigator = createBottomTabNavigator();
@@ -46,6 +47,8 @@ function MainApp() {
             iconName = focused ? "cog" : "cog-outline";
           } else if (route.name === "Snippets") {
             iconName = focused ? "volume-high" : "volume-high-outline";
+          } else if (route.name === "Audio Record") {
+            iconName = focused ? "mic" : "mic-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -67,6 +70,11 @@ function MainApp() {
         name="Snippets"
         component={SnippetsScreen}
         options={{ headerShown: false }}
+      />
+      <navigator.Screen
+        name="Audio Record"
+        component={AudioRecordScreen}
+        options={{ headerShown: true }}
       />
       <navigator.Screen name="Settings" component={SettingsScreen} />
     </homeNavigator.Navigator>

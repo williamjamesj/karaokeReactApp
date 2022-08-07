@@ -56,7 +56,7 @@ async function playSound(uri) {
   await sound.playAsync();
 }
 
-export default function AudioRecordScreen({ route, navigation }) {
+export function AudioRecordScreen({ route, navigation }) {
   const [recording, setRecording] = React.useState();
   const [uri, setUri] = React.useState("");
   const [duration, setDuration] = React.useState(0);
