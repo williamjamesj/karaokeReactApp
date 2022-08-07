@@ -64,8 +64,8 @@ export function MainHomeScreen({ route, navigation }) {
         <Text style={[stylesGlobal.title, { alignSelf: "center" }]}>
           My Events:
         </Text>
-        {events.map((item) => (
-          <EventCard key={item.eventID} item={item} navigation={navigation} />
+        {events.map((item, index) => (
+          <EventCard key={index} item={item} navigation={navigation} />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -92,9 +92,13 @@ function EventCard(item, navigation) {
         shadowRadius: 1, //IOS
         elevation: 2, // Android
       }}
-      onPress={() =>
-        navigation.navigate("SnippetView", { snippetID: item.item.eventID })
-      }
+      onPress={() => {
+        console.log("KSDJFLKSDJF:LKJ");
+        console.log(item.item.eventID);
+        item.navigation.navigate("Interested Event", {
+          eventID: item.item.eventID,
+        });
+      }}
     >
       <Text style={{ marginBottom: 5 }}>
         {item.item.title} by{" "}

@@ -59,7 +59,7 @@ function EventMapScreen({ route, navigation }) {
         setErrorMsg("Permission to access location was denied");
         return;
       } else {
-        let location = await Location.getCurrentPositionAsync({});
+        let location = await Location.getLastKnownPositionAsync({});
         setLatitude(location.coords.latitude);
         setLongitude(location.coords.longitude);
         setOriginalLatitude(location.coords.latitude);

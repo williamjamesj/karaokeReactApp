@@ -61,7 +61,7 @@ function InputScreen({ route, navigation }) {
         <FlashMessage position="top" floating={true} />
         <LoadingIndicator active={loading} />
         <View>
-          <Text>Enter Lyrics:</Text>
+          <Text>Enter Lyrics/Song Name:</Text>
         </View>
 
         <TextInput
